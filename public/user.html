@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>All Registered Users</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <div class="overlay">
+    <div class="container">
+      <h2>Registered Users</h2>
+
+      <!-- Admin key prompt -->
+      <input type="text" id="adminKey" placeholder="Enter Admin Secret Key" />
+      <button onclick="getUsers()">Fetch Users</button>
+
+      <ul id="userList"></ul>
+
+      <a href="index.html">← Back to Home</a>
+    </div>
+  </div>
+
+  <script>
+    async function getUsers() {
+      const key = document.getElementById('adminKey').value.trim();
+      const list = document.getElementById('userList');
+      list.innerHTML = '';
+
+      if (key !== '12345') {
+        alert("Unauthorized access!");
+        return;
+      }
+
+      const res = await fetch('/admin/users');
+      const users = await res.json();
+
+      if (users.length === 0) {
+        list.innerHTML = '<li>No users registered yet.</li>';
+        return;
+      }
+
+      users.forEach(user => {
+        const item = document.createElement('li');
+        item.textContent = `${user.name} (${user.email})`;
+        list.appendChild(item);
+      });
+    }
+  </script>
+</body>
+</html>

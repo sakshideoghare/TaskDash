@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User/Admin Panel</title>
+  <link id="roleStyle" rel="stylesheet" href="user.css" />
+  <style>
+    .tabs {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px;
+      margin: 0 5px;
+      font-weight: bold;
+      background-color: #ccc;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .tab.active {
+      background-color: #007bff;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="container">
+
+      <!-- 🔄 Tab Switcher -->
+      <div class="tabs">
+        <button class="tab active" id="userTab" onclick="switchTab('user')">User</button>
+        <button class="tab" id="adminTab" onclick="switchTab('admin')">Admin</button>
+      </div>
+
+      <!-- 👤 USER PANEL -->
+      <div id="userPanel">
+        <h2>User Registration</h2>
+        <input type="text" id="userName" placeholder="Name" />
+        <input type="email" id="userEmail" placeholder="Email" />
+        <input type="password" id="userPassword" placeholder="Password" />
+        <button onclick="registerUser()">Submit</button>
+      </div>
+
+      <!-- 🔐 ADMIN PANEL -->
+      <div id="adminPanel" style="display: none;">
+        <h2>Admin - Delete User</h2>
+        <input type="email" id="adminDeleteEmail" placeholder="Email to Delete" />
+        <input type="password" id="adminSecretKey" placeholder="Admin Secret Key" />
+        <button onclick="deleteUser()">Delete User</button>
+      </div>
+
+      <hr />
+
+      <!-- 🔗 Navigation Links -->
+      <a href="update.html">➡ Go to Update User Page</a>
+      <a href="user.html">📋 View All Users</a>
+    </div>
+  </div>
+
+  <!-- ✅ Script Section -->
+  <script>
+    // 🔄 Switch Tabs and Styles
+    function switchTab(role) {
+      document.getElementById('userPanel').style.display = role === 'user' ? 'block' : 'none';
+      document.getElementById('adminPanel').style.display = role === 'admin' ? 'block' : 'none';
+
+      document.getElementById('roleStyle').href = `${role}.css`;
+
+      document.getElementById('userTab').classList.toggle('active', role === 'user');
+      document.getElementById('adminTab').classList.toggle('active', role === 'admin');
+    }
+
+    // ✅ User Registration
+    async function registerUser() {
+      const nameField = document.getElementById('userName');
+      const emailField = document.getElementById('userEmail');
+      const passwordField = document.getElementById('userPassword');
+
+      const name = nameField.value.trim();
+      const email = emailField.value.trim();
+      const password = passwordField.value.trim();
+
+      if (!name || !email || !password) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      try {
+        const res = await fetch('/user/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password })
+        });
+
+        const data = await res.json();
+        alert(data.message);
+
+        // ✅ Clear Fields
+        nameField.value = '';
+        emailField.value = '';
+        passwordField.value = '';
+
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Something went wrong.");
+      }
+    }
+
+    // ✅ Admin Delete User
+    async function deleteUser() {
+      const emailField = document.getElementById('adminDeleteEmail');
+      const keyField = document.getElementById('adminSecretKey');
+
+      const email = emailField.value.trim();
+      const key = keyField.value.trim();
+
+      if (!email || !key) {
+        alert("Fill in both fields.");
+        return;
+      }
+
+      if (key !== '12345') {
+        alert("Invalid admin key!");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/admin/delete/${email}`, {
+          method: 'DELETE'
+        });
+
+        const data = await res.json();
+        alert(data.message);
+
+        // ✅ Clear Fields
+        emailField.value = '';
+        keyField.value = '';
+
+      } catch (error) {
+        console.error("Delete error:", error);
+        alert("Something went wrong.");
+      }
+    }
+
+    // 📌 Initialize default tab
+    switchTab('user');
+  </script>
+</body>
+</html>

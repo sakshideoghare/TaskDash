@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Update User</title>
+  <link rel="stylesheet" href="user.css">
+</head>
+<body>
+  <div class="overlay">
+    <div class="container">
+      <h2>Update User</h2>
+      <input type="email" id="email" placeholder="Registered Email">
+      <input type="text" id="name" placeholder="New Name">
+      <input type="password" id="password" placeholder="New Password">
+      <button onclick="updateUser()">Update</button>
+      <a href="index.html">← Back to Home</a>
+    </div>
+  </div>
+
+  <script>
+  async function updateUser() {
+    const emailField = document.getElementById('email');
+    const nameField = document.getElementById('name');
+    const passwordField = document.getElementById('password');
+
+    const email = emailField.value.trim();
+    const name = nameField.value.trim();
+    const password = passwordField.value.trim();
+
+    if (!email || !name || !password) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/user/update/${email}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, password })
+      });
+
+      const data = await res.json();
+      alert(data.message);
+
+      // ✅ Clear fields
+      emailField.value = '';
+      nameField.value = '';
+      passwordField.value = '';
+
+    } catch (error) {
+      console.error("Update error:", error);
+      alert("Something went wrong.");
+    }
+  }
+</script>
+
+</body>
+</html>
